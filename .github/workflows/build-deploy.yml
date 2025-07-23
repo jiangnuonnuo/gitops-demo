@@ -1,0 +1,81 @@
+name: 构建镜像并更新配置
+
+on:
+  push:
+    branches: [ main, master ]
+    paths-ignore:
+      - 'k8s/**'  # 忽略 k8s 目录的变更，避免循环触发
+      - 'README.md'
+      - '.gitignore'
+
+env:
+  IMAGE_NAME: gitops-demo
+  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+        
+      - name: 设置 Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        
+      - name: 登录到 GitHub 容器注册表
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: 提取元数据
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,format=long,prefix=
+            latest
+            
+      - name: 构建并推送 Docker 镜像
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 检出 Kustomize 配置仓库
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+          path: gitops-config
+          
+      - name: 更新 Kustomization 文件中的镜像标签
+        run: |
+          cd gitops-config
+          SHA_TAG=$(echo ${{ github.sha }} | cut -c1-7)
+          mkdir -p k8s
+          # 如果 k8s 目录下没有文件，就创建基本配置
+          if [ ! -f k8s/kustomization.yaml ]; then
+            cp -r ../k8s/* k8s/ || echo "创建 k8s 目录结构"
+          fi
+          # 更新 kustomization.yaml 中的镜像标签
+          cd k8s
+          sed -i "s|newTag:.*|newTag: sha-$SHA_TAG|" kustomization.yaml
+          
+      - name: 提交更新的配置
+        run: |
+          cd gitops-config
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add k8s/kustomization.yaml
+          git commit -m "更新镜像标签到 sha-${{ github.sha }}" || echo "没有变更需要提交"
+          git push 
