@@ -5,7 +5,6 @@ resources:
   - deployment.yaml
   - service.yaml
 
-# 这里的镜像会被 GitHub Actions 自动更新
 images:
-- name: ghcr.io/jiangnuonnuo/gitops-demo
-  newTag: sha-9466ea6
+  - name: ghcr.io/jiangnuonnuo/gitops-demo
+    newTag: sha-520
