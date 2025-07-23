@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: app
-        image: jiang0613/python-k8s:v1
+        image: jiang0613/gitops-demo:v1
         imagePullPolicy: Always
         ports:
         - containerPort: 6000

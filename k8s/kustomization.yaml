@@ -6,5 +6,5 @@ resources:
   - service.yaml
 
 images:
-  - name: jiang0613/python-k8s
+  - name: jiang0613/gitops-demo
     newTag: v1
