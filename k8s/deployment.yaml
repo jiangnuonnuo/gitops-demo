@@ -21,13 +21,13 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 6000
-        resources:
-          limits:
-            cpu: "0.5"
-            memory: "256Mi"
-          requests:
-            cpu: "0.1"
-            memory: "128Mi"
+#        resources:
+#          limits:
+#            cpu: "0.5"
+#            memory: "256Mi"
+#          requests:
+#            cpu: "0.1"
+#            memory: "128Mi"
         env:
         - name: ENVIRONMENT
           value: "production"
