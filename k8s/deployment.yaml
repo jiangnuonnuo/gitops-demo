@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: app
-        image: jiang0613/python-k8s:latest
+        image: jiang0613/python-k8s:v1
         imagePullPolicy: Always
         ports:
         - containerPort: 6000
