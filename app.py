@@ -11,7 +11,7 @@ def info():
 
 @app.route('/hello')
 def hello():
-    return "hello2"
+    return "hello3"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=6000)

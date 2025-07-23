@@ -7,5 +7,5 @@ resources:
 
 # 这里的镜像会被 GitHub Actions 自动更新
 images:
-- name: ghcr.io/jiangnuonuo/gitops-demo
+- name: ghcr.io/jiangnuonnuo/gitops-demo
   newTag: latest
