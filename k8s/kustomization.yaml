@@ -7,4 +7,4 @@ resources:
 
 images:
   - name: jiang0613/gitops-demo
-    newTag: REPLACEME  # 这里会被 GitHub Actions 自动替换为 commit sha
+    newTag: b95d88c28d3bacc56539e3424ab0c8f87bb4b954
