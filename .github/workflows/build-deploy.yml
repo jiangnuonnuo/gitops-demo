@@ -10,6 +10,7 @@ on:
 # 添加这一部分来设置权限
 permissions:
   contents: write
+  packages: write
 
 jobs:
   build-and-push:
