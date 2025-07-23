@@ -7,4 +7,4 @@ resources:
 
 images:
   - name: ghcr.io/jiangnuonnuo/gitops-demo
-    newTag: sha-520
+    newTag: sha-9a2826f
