@@ -7,7 +7,11 @@ def hello():
 
 @app.route('/info')
 def info():
-    return "info!是粉色的"
+    return "wuuwuwuw!"
+
+@app.route('/hello')
+def hello():
+    return "hello"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=6000)
