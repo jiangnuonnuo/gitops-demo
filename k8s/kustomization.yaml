@@ -7,4 +7,4 @@ resources:
 
 images:
   - name: jiang0613/gitops-demo
-    newTag: b95d88c28d3bacc56539e3424ab0c8f87bb4b954
+    newTag: b7a98f8efdc5581a59c6f45bc491a0c767f03142
