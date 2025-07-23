@@ -8,4 +8,4 @@ resources:
 # 这里的镜像会被 GitHub Actions 自动更新
 images:
 - name: ghcr.io/jiangnuonnuo/gitops-demo
-  newTag: sha-da1e0bb
+  newTag: sha-9466ea6
