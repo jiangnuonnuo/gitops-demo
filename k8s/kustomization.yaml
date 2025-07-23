@@ -7,4 +7,4 @@ resources:
 
 images:
   - name: jiang0613/gitops-demo
-    newTag: v1
+    newTag: sha-8a17b48
