@@ -1,81 +1,54 @@
-name: 构建镜像并更新配置
+name: 构建与部署
 
 on:
   push:
-    branches: [ main, master ]
-    paths-ignore:
-      - 'k8s/**'  # 忽略 k8s 目录的变更，避免循环触发
-      - 'README.md'
-      - '.gitignore'
-
-env:
-  IMAGE_NAME: gitops-demo
-  IMAGE_REGISTRY: ghcr.io/${{ github.repository_owner }}
+    branches: [ master ]
+    paths:
+      - 'app.py'
+      - 'Dockerfile'
+      - 'requirements.txt'
 
 jobs:
   build-and-push:
+    name: 构建并推送Docker镜像
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
-      
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v3
-        
-      - name: 设置 Docker Buildx
-        uses: docker/setup-buildx-action@v2
-        
-      - name: 登录到 GitHub 容器注册表
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: 提取元数据
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,format=long,prefix=
-            latest
-            
-      - name: 构建并推送 Docker 镜像
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
-      - name: 检出 Kustomize 配置仓库
-        uses: actions/checkout@v3
-        with:
-          ref: ${{ github.ref }}
-          path: gitops-config
-          
-      - name: 更新 Kustomization 文件中的镜像标签
-        run: |
-          cd gitops-config
-          SHA_TAG=$(echo ${{ github.sha }} | cut -c1-7)
-          mkdir -p k8s
-          # 如果 k8s 目录下没有文件，就创建基本配置
-          if [ ! -f k8s/kustomization.yaml ]; then
-            cp -r ../k8s/* k8s/ || echo "创建 k8s 目录结构"
-          fi
-          # 更新 kustomization.yaml 中的镜像标签
-          cd k8s
-          sed -i "s|newTag:.*|newTag: sha-$SHA_TAG|" kustomization.yaml
-          
-      - name: 提交更新的配置
-        run: |
-          cd gitops-config
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add k8s/kustomization.yaml
-          git commit -m "更新镜像标签到 sha-${{ github.sha }}" || echo "没有变更需要提交"
-          git push 
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+
+    - name: 登录DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: 设置Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: 构建并推送
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: true
+        tags: ${{ secrets.DOCKER_USERNAME }}/gitops-demo:latest,${{ secrets.DOCKER_USERNAME }}/gitops-demo:${{ github.sha }}
+
+    - name: 更新Kubernetes配置
+      run: |
+        # 生成一个短的提交SHA值
+        SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+        
+        # 更新kustomization.yaml中的镜像标签
+        sed -i "s|newTag: .*|newTag: sha-$SHORT_SHA|" ./k8s/kustomization.yaml
+        
+        # 更新镜像名称（如果需要从ghcr.io更改为DockerHub）
+        sed -i "s|name: ghcr.io/jiangnuonnuo/gitops-demo|name: ${{ secrets.DOCKER_USERNAME }}/gitops-demo|" ./k8s/kustomization.yaml
+        
+        # 配置Git
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        
+        # 提交更改
+        git add ./k8s/kustomization.yaml
+        git commit -m "更新应用到版本 sha-$SHORT_SHA"
+        git push
