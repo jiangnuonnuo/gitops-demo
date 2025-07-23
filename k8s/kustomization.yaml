@@ -7,4 +7,4 @@ resources:
 
 images:
   - name: jiang0613/python-k8s  # 修改为与deployment.yaml中一致
-    newTag: sha-1  # 只更新标签即可
+    newTag: sha-b35a2ca
