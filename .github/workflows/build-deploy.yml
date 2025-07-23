@@ -7,6 +7,9 @@ on:
       - 'app.py'
       - 'Dockerfile'
       - 'requirements.txt'
+# 添加这一部分来设置权限
+permissions:
+  contents: write
 
 jobs:
   build-and-push:
@@ -16,6 +19,9 @@ jobs:
     steps:
     - name: 检出代码
       uses: actions/checkout@v3
+      with:
+        # 确保检出时获取完整的git历史
+        fetch-depth: 0
 
     - name: 登录DockerHub
       uses: docker/login-action@v2
