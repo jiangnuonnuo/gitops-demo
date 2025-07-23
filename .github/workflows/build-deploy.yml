@@ -2,7 +2,7 @@ name: 构建与部署
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master ,main]
     paths:
       - 'app.py'
       - 'Dockerfile'
