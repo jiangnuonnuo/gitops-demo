@@ -39,6 +39,14 @@ jobs:
         push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/gitops-demo:latest,${{ secrets.DOCKER_USERNAME }}/gitops-demo:${{ github.sha }}
 
+    - name: 验证镜像推送
+      run: |
+        echo "尝试查询推送的镜像"
+        # 安装 skopeo 工具用于查询 Docker 镜像
+        sudo apt-get update && sudo apt-get install -y skopeo
+        # 查询镜像是否存在于 DockerHub
+        skopeo inspect docker://${{ secrets.DOCKER_USERNAME }}/gitops-demo:latest || echo "镜像未找到"
+
     - name: 更新Kubernetes配置
       run: |
         # 生成一个短的提交SHA值

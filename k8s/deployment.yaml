@@ -16,7 +16,6 @@ spec:
     spec:
       containers:
       - name: app
-        # 注意：这里的镜像会被 GitHub Actions 自动更新
         image: jiang0613/python-k8s:latest
         imagePullPolicy: Always
         ports:
