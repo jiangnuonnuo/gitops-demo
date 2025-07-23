@@ -7,7 +7,7 @@ def hello():
 
 @app.route('/info')
 def info():
-    return "sdf asdf!"
+    return "sdf as5!"
 
 @app.route('/hello')
 def hello():
